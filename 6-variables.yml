@@ -1,0 +1,60 @@
+---
+- name: Les variables
+  hosts: debian
+  # become: true
+  gather_facts: false
+  vars:
+    var1: toto
+    var2: test
+  vars_prompt:
+    - name: var7
+      prompt: Saisir la valeur de var7
+      # confirm: false
+      private: false
+  tasks:
+    - name: Debug variables d'inventaire
+      ansible.builtin.debug:
+        # inline templating : jinja dans une chaine
+        # msg: "{{ fg }}  {{ bg }}"
+        msg: |  # ou >
+          {{ fg }}
+          {{ bg }}
+          Prompt: {{ var7 }}
+
+    - name: Debug variables de play
+      ansible.builtin.debug:
+        var: var1
+
+    - name: Variables indéfinies
+      ansible.builtin.debug:
+        msg: "{{ var3 | default('N/A') }}"
+
+    - name: Debug avec portée locale
+      ansible.builtin.debug:
+        var: var2
+      vars:
+        var2: tutu
+
+    - name: Debug retour à la portée globale
+      ansible.builtin.debug:
+        var: var2
+
+    - name: Définition de variables
+      ansible.builtin.set_fact:
+        var1: titi
+        var5: glop
+        var6: pas glop
+
+    - name: Debug variables redéfinies
+      ansible.builtin.debug:
+        msg: "var1:{{ var1 }}   var5:{{ var5 }}  var6:{{ var6 }}"
+
+    - name: Resultat des taches
+      ansible.builtin.command: ls -l /tmp
+      register: result
+      changed_when: false
+      check_mode: false
+
+    - name: Affichage du résultat
+      ansible.builtin.debug:
+        msg: '{{ result.stdout }}   {{ result.rc }}'
