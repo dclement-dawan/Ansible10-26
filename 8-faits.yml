@@ -1,0 +1,9 @@
+---
+- name: Faits
+  hosts: webservers
+  become: true
+  tasks:
+    - name: La distribution
+      ansible.builtin.debug:
+        msg: "{{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+        verbosity: 1

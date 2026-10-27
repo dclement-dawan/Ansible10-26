@@ -38,31 +38,31 @@
       ansible.builtin.systemd:
         name: '{{ apache_service }}'
         state: restarted
+      when: not ansible_check_mode
   tasks:
     - name: Installation du paquet
-      ansible.builtin.apt:
-        name: apache2
+      ansible.builtin.package:
+        name: '{{ apache_package }}'
         state: present
-        update_cache: true
-        cache_valid_time: 7200
 
     - name: Copie du fichier index
       ansible.builtin.copy:
         src: index.html
         dest: /var/www/html
-        owner: www-data
-        group: "www-data"
+        owner: "{{ apache_user }}"
+        group: "{{ apache_group }}"
         mode: '0644'
 
     - name: Service apache
       ansible.builtin.systemd:
-        name: apache2
+        name: '{{ apache_service }}'
         state: started
         enabled: true
+      when: not ansible_check_mode
 
     - name: Configuration du port
       ansible.builtin.copy:
-        dest: /etc/apache2/conf-enabled/port.conf
-        content: Listen 8081
+        dest: "{{ apache_conf_aux }}/port.conf"
+        content: Listen 8080
         mode: '0644'
       notify: Restart Apache
