@@ -36,7 +36,7 @@
   handlers:
     - name: Restart Apache
       ansible.builtin.systemd:
-        name: '{{ apache_serivce }}'
+        name: '{{ apache_service }}'
         state: restarted
   tasks:
     - name: Installation du paquet
