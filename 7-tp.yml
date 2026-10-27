@@ -1,0 +1,68 @@
+# Déclarer et préparer le node AlmaLinux(copier la clé ssh)
+#     ssh-copy-id dawan@192.168.1.83
+
+# L'ajouter dans votre inventaire dans un groupe alma
+# Faire un groupe webservers:children contenant les groupes debian et alma
+
+# Tester la connexion avec le module ping
+
+# Reprendre le playbook 5
+
+# Et variabiliser l'inventaire pour adapter l'exécution du
+# playbook en fonction de la distribution.
+
+# Changer le module apt par package
+
+# group_vars/debian.yml :
+
+# apache_service: apache2
+# apache_package: apache2
+# apache_user: www-data
+# apache_group: www-data
+# apache_conf_aux: /etc/apache2/conf-enabled
+
+# et group_vars/alma.yml :
+
+# apache_service: httpd
+# apache_package: httpd
+# apache_user: apache
+# apache_group: apache
+# apache_conf_aux: /etc/httpd/conf.d
+
+
+- name: Install apache
+  hosts: webservers
+  become: true
+  handlers:
+    - name: Restart Apache
+      ansible.builtin.systemd:
+        name: '{{ apache_serivce }}'
+        state: restarted
+  tasks:
+    - name: Installation du paquet
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+        update_cache: true
+        cache_valid_time: 7200
+
+    - name: Copie du fichier index
+      ansible.builtin.copy:
+        src: index.html
+        dest: /var/www/html
+        owner: www-data
+        group: "www-data"
+        mode: '0644'
+
+    - name: Service apache
+      ansible.builtin.systemd:
+        name: apache2
+        state: started
+        enabled: true
+
+    - name: Configuration du port
+      ansible.builtin.copy:
+        dest: /etc/apache2/conf-enabled/port.conf
+        content: Listen 8081
+        mode: '0644'
+      notify: Restart Apache
