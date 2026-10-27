@@ -1,0 +1,6 @@
+# Reprendre le fichier 3-tp.yml
+# ajouter un tâche :
+# Créer un fichier port.conf dans le dossier /etc/apache2/conf-enabled
+# contenant :   Listen 8080
+
+# Notifier un handler : "Restart Apache"
