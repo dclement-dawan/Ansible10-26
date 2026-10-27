@@ -1,0 +1,54 @@
+---
+- name: Utilisation des handlers
+  hosts: debian
+  become: true
+  handlers:
+    - name: Fichier modifie
+      ansible.builtin.debug:
+        msg: Le fichier est modifié
+      # permet de regrouper les handlers
+      listen: Groupe handlers
+
+    - name: Fichier modifie bis
+      ansible.builtin.debug:
+        msg: Le fichier est modifié bis
+      listen: Groupe handlers
+  tasks:
+    - name: Fichier /tmp/truc
+      ansible.builtin.copy:
+        dest: /tmp/truc
+        content: hello world
+        mode: '0644'
+      notify: Fichier modifie
+
+    - name: Fichier /tmp/machin
+      ansible.builtin.copy:
+        dest: /tmp/machin
+        content: hello world
+        mode: '0644'
+      notify: # notifier plusieurs handlers
+        - Fichier modifie
+        - Fichier modifie bis
+
+    - name: Fichier /tmp/bidule
+      ansible.builtin.copy:
+        dest: /tmp/bidule
+        content: hello world
+        mode: '0644'
+      notify: Groupe handlers
+
+    # Exécute les handlers qui ont été notifiés
+    - name: Exécution des handlers
+      ansible.builtin.meta: flush_handlers
+
+    - name: Tâche bidon
+      ansible.builtin.debug:
+        msg: 'Fin.'
+
+- name: Synchro de la conf
+  hosts: debian
+  become: true
+  tasks:
+    - name: Tâche bidon
+      ansible.builtin.debug:
+        msg: 'Fin.'
