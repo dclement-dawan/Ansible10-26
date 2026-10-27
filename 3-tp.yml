@@ -1,0 +1,10 @@
+# Transformer les commandes ad-hoc en playbook
+
+# Installer le paquet ”apache2” (module apt)
+ansible debian -m apt -a "name=apache2 state=present update_cache=true cache_valid_time=7200" -b
+
+# Transférer un fichier index.html dans /var/www/html, avec uid/gid:www-data et mode 0644 (module copy)
+ansible debian -m copy -a "src=index.html dest=/var/www/html owner=www-data group=www-data mode=0644" -b
+
+# S'assurer du démarrage et de l'activation du service apache2 (module systemd)
+ansible debian -m systemd -a "name=apache2 state=started enabled=true" -b

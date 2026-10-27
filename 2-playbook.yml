@@ -1,0 +1,37 @@
+---
+
+# ansible-playbook 2-playbook.yml
+# ansible-playbook 2-playbook.yml --list-tasks
+# ansible-playbook 2-playbook.yml --list-hosts
+# ansible-playbook 2-playbook.yml -C -D -l node1 -vvv  # Check mode, Diff, Limite sur l'inventaire et Verbosité
+- name: Premier acte du playbook
+  hosts: debian
+  become: true
+  # liste des plugins de become : ansible-doc -l -t become
+  become_method: ansible.builtin.sudo
+  gather_facts: false
+  any_errors_fatal: true
+  tasks:
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: true
+        dpkg_options: 'force-confold,force-confdef'
+        cache_valid_time: 7200
+
+    - name: Upgrade all packages
+      ansible.builtin.command: apt -y upgrade
+      changed_when: false
+
+- name: Deuxième acte du playbook
+  hosts: ungrouped
+  become: true
+  # liste des plugins de become : ansible-doc -l -t become
+  become_method: ansible.builtin.sudo
+  tasks:
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        upgrade: dist
+        update_cache: true
+        dpkg_options: 'force-confold,force-confdef'
+        cache_valid_time: 7200
