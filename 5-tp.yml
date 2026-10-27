@@ -4,3 +4,39 @@
 # contenant :   Listen 8080
 
 # Notifier un handler : "Restart Apache"
+- name: Install apache
+  hosts: debian
+  become: true
+  handlers:
+    - name: Restart Apache
+      ansible.builtin.systemd:
+        name: apache2
+        state: restarted
+  tasks:
+    - name: Installation du paquet
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+        update_cache: true
+        cache_valid_time: 7200
+
+    - name: Copie du fichier index
+      ansible.builtin.copy:
+        src: index.html
+        dest: /var/www/html
+        owner: www-data
+        group: "www-data"
+        mode: '0644'
+
+    - name: Service apache
+      ansible.builtin.systemd:
+        name: apache2
+        state: started
+        enabled: true
+
+    - name: Configuration du port
+      ansible.builtin.copy:
+        dest: /etc/apache2/conf-enabled/port.conf
+        content: Listen 8081
+        mode: '0644'
+      notify: Restart Apache
