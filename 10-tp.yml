@@ -1,0 +1,25 @@
+---
+# créer un fichier page2.html dans /var/www/html
+# utiliser les couleurs fg et bg défini dans l'inventaire :
+
+# <html>
+#   <head>
+#     <style>
+#       body { color: red; background: blue; }
+#     </style>
+#   </head>
+#   <body>
+#     ...
+#   </body>
+# </html>
+
+# Afficher les informations suivantes dans la balise body :
+#   - les points de montage avec la taille et l'espace libre en Go ou Gio
+#   - la liste des IPv4 de la machine
+
+# Bonus :
+# - ajouter le pourcentage occupé sur les points de montage
+
+# Afficher la liste des services démarrés:
+#  module : service_facts
+#  filter : selectattr sur la variables services.values()
