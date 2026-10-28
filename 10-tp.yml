@@ -23,3 +23,20 @@
 # Afficher la liste des services démarrés:
 #  module : service_facts
 #  filter : selectattr sur la variables services.values()
+- name: TP template
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Collecte des services
+      ansible.builtin.service_facts:
+
+    - name: Services démarrés
+      ansible.builtin.set_fact:
+        startedservices: "{{ services.values() | selectattr('state', '==', 'running') }}"
+
+    - name: Page 2
+      ansible.builtin.template:
+        src: page2.html.jinja
+        dest: /var/www/html/page2.html
+        mode: '0644'
+        backup: true

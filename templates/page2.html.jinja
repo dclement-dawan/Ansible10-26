@@ -1,0 +1,56 @@
+<html>
+  <head>
+    <style>
+      body { color: {{ fg }}; background: {{ bg }}; }
+    </style>
+  </head>
+  <body>
+<ul>
+{% for mountpoint in ansible_mounts %}
+<li>
+{{   mountpoint.mount }} :
+{{   mountpoint.size_total / (1024*1024*1024) }}
+{{   mountpoint.size_total | human_readable }}
+{{   mountpoint.size_total | filesizeformat(true) }}
+</li>
+{% endfor %}
+</ul>
+
+<ul>
+{% for ip in ansible_all_ipv4_addresses + ansible_all_ipv6_addresses %}
+<li>{{ ip }}</li>
+{% endfor %}
+</ul>
+
+
+<ul>
+{% for mountpoint in ansible_mounts %}
+{%   set size_used = mountpoint.size_total - mountpoint.size_available %}
+{%   set percent_used = (size_used / mountpoint.size_total*100) | round(2) %}
+<li>
+{{   mountpoint.mount }} : {{ percent_used }}%
+</li>
+{% endfor %}
+</ul>
+
+
+<ul>
+{% for service in services | dict2items %}
+{%   if service.value['state'] == 'running' %}
+<li>
+    {{ service.value['name'] }}
+</li>
+{%   endif %}
+{% endfor %}
+</ul>
+
+<ul>
+{% for service in startedservices %}
+<li>
+    {{ service.value['name'] }}
+</li>
+{% endfor %}
+</ul>
+
+  </body>
+</html>
