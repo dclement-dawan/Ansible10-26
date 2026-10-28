@@ -1,0 +1,70 @@
+{# Commentaire Jinja, invisible dans le fichier final #}
+{# Extension vscode : Jinja et BetterJinja #}
+Vous êtes sur {{ inventory_hostname }}
+J'ai l'IP : {{ ansible_default_ipv4.address }}
+Je tourne sur {{ ansible_distribution }} version {{ ansible_distribution_version }}
+
+{{ var1 }}
+
+{# déclarer des variables #}
+{% set data = '{"test": "valeur"}' | ansible.builtin.from_json %}}
+{% set distro = (ansible_distribution + ansible_distribution_major_version) | lower %}
+Votre distro : {{ distro }} {{ distro | upper }}
+{{ data.test }}
+{{ 1.12545 | round }}
+{{ 1.12545 | round(2) }}
+{# Filtres ou fonction doc de Jinja, et ansible-doc -t filter -l #}
+
+{# Lookup -> requêtage Ansible pour injecter des données dans Jinja #}
+{# ansible-doc -t lookup -l #}
+{% set date = lookup('ansible.builtin.pipe', 'date') %}
+{% set detebis = "La date du jour est " + date  %}
+
+{# ou #}
+{% set datebis = "La date du jour est " + lookup('ansible.builtin.pipe', 'date') %}
+
+{{ date }}
+{% set motd = lookup('ansible.builtin.file', '/etc/motd') %}
+{{ motd | length }}
+{% set dawan = lookup('community.general.dig', 'dawan.fr./A') %}
+{{ dawan }}
+
+{% if ansible_distribution == 'Debian'  %}
+Youpi
+{% endif %}
+
+{# Les tests Jinja cf doc Jinja, tests fournis par Ansible : ansible-doc -t test -l #}
+{% if '127.0.0.1' is ansible.utils.ip %}
+  C'est une ip correcte
+{% endif %}
+
+{% if '192.168.75.171' is ansible.utils.in_network '192.168.0.0/24' %}
+  l'ip est dans le réseau
+{% else %}
+  l'ip n"est pas dans le réseau
+{% endif %}
+
+{% if ansible_distribution == 'Debian' %}
+Youpi
+{% elif ansible_distribution == 'AlmaLinux' %}
+Youpi
+{% elif ansible_distribution == 'Ubuntu' %}
+Youpi
+{% else%}
+Inconnu
+{% endif %}
+
+{# Parcours de liste uniquement #}
+{% set tab = 1,2,3,4,5,6 %}
+{% for i in tab %}
+{{ i }}
+{% endfor %}
+
+{% set dico = {'un': 1, 'deux': 2, 'trois': 3} %}
+{% for item in dico | dict2items %}
+{{ item.key }} : {{ item.value }}
+{% endfor %}
+
+{% for key, value in dico | dictsort %}
+{{ key }} : {{ value }}
+{% endfor %}

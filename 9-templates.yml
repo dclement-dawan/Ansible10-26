@@ -1,0 +1,13 @@
+- name: Exemple de template
+  hosts: webservers
+  become: true
+  # gather_facts: false
+  vars:
+    var1: toto
+  tasks:
+    - name: Utilisation d'un template
+      ansible.builtin.template:
+        src: motd.jinja
+        dest: /etc/motd
+        mode: "0644"
+        backup: true
