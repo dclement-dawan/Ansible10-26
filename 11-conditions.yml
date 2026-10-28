@@ -1,0 +1,69 @@
+---
+- name: Conditions Ansible
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Collecte
+      ansible.builtin.setup:
+      when: ansible_os_family is undefined
+
+    # - meta: clear_facts
+
+    - name: Assertions
+      ansible.builtin.assert:
+        that:
+          - ansible_os_family is defined
+          - ansible_distribution is defined
+        fail_msg: Les faits doivent être collectés
+
+    - name: Debian
+      ansible.builtin.apt:
+        update_cache: true
+      when: ansible_distribution == 'Debian'
+
+    - name: Alma
+      when: ansible_os_family == 'RedHat'
+      block:
+        - name: Alma1
+          ansible.builtin.debug:
+            msg: tâche pour alma
+
+        - name: Alma2
+          ansible.builtin.debug:
+            msg: tâche pour alma
+
+        - name: Alma3
+          ansible.builtin.debug:
+            msg: tâche pour alma
+
+    - name: Commande
+      ansible.builtin.command: ls /tmp
+      register: result
+      changed_when: false
+      failed_when: false
+
+    - name: Test sur retour de module
+      ansible.builtin.debug:
+        msg: it works
+      when: result.rc == 0 and result.stdout.find('truc') != -1
+
+    - name: Module stat
+      ansible.builtin.stat:
+        path: /tmp
+      register: result
+
+    - name: Test sur retour de module
+      ansible.builtin.debug:
+        msg: it works
+      when: result.stat.exists and result.stat.isdir
+
+    - name: URI
+      ansible.builtin.uri:
+        url: http://127.0.0.1/page2.html
+        return_content: true
+      register: result
+
+    - name: Test sur retour de module
+      ansible.builtin.debug:
+        msg: it works
+      when: result.status == 200 and result.content.find('%') != -1
