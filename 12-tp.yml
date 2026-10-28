@@ -1,0 +1,48 @@
+---
+# Reprendre le playbook 7-tp.yml
+
+# Ajouter une tâche avec le module assert pour vérifier la distribution ainsi que la version majeure. Ne doit s'exécuter que pour Debian 12 et AlmaLinux 9
+
+# Ajouter une tâche spécifique aux Debian : mettre à jour le cache apt, et le cache valide pour 7200 secondes
+
+# Ajouter un bloc de tâches conditionnel pour les Alma :
+#     - désactiver SeLinux, notifier un handler "Reboot" pour redémarrer l'OS (module reboot)
+#     - Ajouter une règle de pare-feu (firewalld) pour le service http pour la zone "public" (active, immédiatement et permanente)
+#     - et ajouter une règle pour 8080/tcp pour la zone "public" (active, immédiatement et permanente)
+
+- name: Install apache
+  hosts: webservers
+  become: true
+  handlers:
+    - name: Restart Apache
+      ansible.builtin.systemd:
+        name: '{{ apache_service }}'
+        state: restarted
+      when: not ansible_check_mode
+  tasks:
+    - name: Installation du paquet
+      ansible.builtin.package:
+        name: '{{ apache_package }}'
+        state: present
+
+    - name: Copie du fichier index
+      ansible.builtin.copy:
+        src: index.html
+        dest: /var/www/html
+        owner: "{{ apache_user }}"
+        group: "{{ apache_group }}"
+        mode: '0644'
+
+    - name: Service apache
+      ansible.builtin.systemd:
+        name: '{{ apache_service }}'
+        state: started
+        enabled: true
+      when: not ansible_check_mode
+
+    - name: Configuration du port
+      ansible.builtin.copy:
+        dest: "{{ apache_conf_aux }}/port.conf"
+        content: Listen 8080
+        mode: '0644'
+      notify: Restart Apache
