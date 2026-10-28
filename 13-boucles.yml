@@ -1,0 +1,46 @@
+---
+- name: Boucles avec ansible
+  hosts: webservers
+  become: true
+  vars:
+    userlist:
+      - toto
+      - titi
+      - tutu
+    userlist2:
+      - name: toto
+        home: /dev/null
+        shell: /usr/bin/nologin
+      - name: tutu
+        home: /home/tutu
+        shell: /bin/bash
+      - name: titi
+        home: /usr/share/ansible
+        shell: /bin/sh
+  tasks:
+    - name: Création utilisateurs
+      ansible.builtin.user:
+        name: '{{ item }}'     # item : nom de la variable de parcours par défaut
+        state: present
+      loop: '{{ userlist }}'
+
+    - name: Création utilisateurs v2
+      ansible.builtin.user:
+        name: '{{ user }}'
+        state: present
+      loop: '{{ userlist }}'
+      loop_control:
+        loop_var: user
+        index_var: index
+        label: "Création de l'utilisateur {{ user }} {{ index }}"
+
+    - name: Création utilisateurs v3
+      ansible.builtin.user:
+        name: '{{ user.name }}'
+        home: '{{ user.home }}'
+        shell: '{{ user.shell }}'
+        state: present
+      loop: '{{ userlist2 }}'
+      loop_control:
+        loop_var: user
+        label: "Création de l'utilisateur {{ user }}"
