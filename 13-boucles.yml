@@ -43,4 +43,28 @@
       loop: '{{ userlist2 }}'
       loop_control:
         loop_var: user
-        label: "Création de l'utilisateur {{ user }}"
+        label: "Création de l'utilisateur {{ user.name }}"
+
+    - name: Parcours de dictionnaire
+      ansible.builtin.package:
+        name: '{{ package.key }}'
+        state: '{{ package.value }}'
+      loop: '{{ packages | dict2items }}'
+      loop_control:
+        loop_var: package
+      vars:
+        packages:
+          bash-completion: present
+          tmux: absent
+          git: present
+
+
+    - name: Attente un évènement
+      ansible.builtin.stat:
+        path: /tmp/toto
+      register: result
+      # la tâche est répétée jusqu'à ce que le fichier existe
+      until: result.stat.exists
+      # 30 tentatives, espacées de 20 secondes
+      retries: 30
+      delay: 20
