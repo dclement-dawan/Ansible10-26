@@ -18,7 +18,7 @@
         msg: "{{ ansible_facts }}"
         verbosity: 2
 
-- name: Faits
+- name: Faits collecte perso
   hosts: webservers
   become: true
   gather_facts: false
@@ -28,9 +28,26 @@
 
     - name: Collecte
       ansible.builtin.setup:
-        
 
-    - name: La distribution
+    - name: Collecte bis
+      ansible.builtin.setup:
+        gather_subset:
+          - '!all'
+          - distribution
+
+    - name: Paquets
+      ansible.builtin.package_facts:
+
+    - name: Services
+      ansible.builtin.service_facts:
+
+    - name: Autres faits
       ansible.builtin.debug:
-        msg: "{{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+        msg: |
+          {{ packages[apache_package][0].version }}
+          {{ services[apache_service + '.service'] }}
         verbosity: 1
+    - name: Version apache
+      ansible.builtin.set_fact:
+        apache_version: "{{ packages[apache_package][0]['version'] }}"
+        apache_state: "{{ services[apache_service + '.service'].state }}"
