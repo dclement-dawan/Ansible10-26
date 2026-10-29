@@ -1,0 +1,33 @@
+---
+- name: Utilisation des vaults
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Ouverture du coffre
+      ansible.builtin.include_vars:
+        file: vault.yml
+        name: vault
+
+    - name: Affichage :)
+      ansible.builtin.debug:
+        msg: '{{ vault.mysql_root_password }}'
+      no_log: true
+
+    # - meta: end_play
+
+    - name: Appel d'un rôle de la galaxy mysql
+      ansible.builtin.include_role:
+        name: geerlingguy.mysql
+      vars:
+        mysql_root_password: '{{ vault.mysql_root_password }}'
+        mysql_databases:
+          - name: totodb
+          - name: tutudb
+        mysql_users:
+          - name: toto
+            password: '{{ vault.mysql_user_password }}'
+            priv: "totodb.*:USAGE"
+          - name: tutu
+            password: '{{ vault.mysql_user_password }}'
+            priv: "tutudb.*:ALL"
+        mysql_hide_passwords: true
