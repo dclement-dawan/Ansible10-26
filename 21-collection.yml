@@ -1,6 +1,10 @@
 - name: Collection utilisation
   hosts: node1
   become: true
+  roles:
+    - role: dawan.exemple.test
+      test_param1: youpi
+      test_param2: bref
   tasks:
     - name: Appel du rôle
       ansible.builtin.include_role:
