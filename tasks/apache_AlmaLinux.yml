@@ -1,0 +1,20 @@
+- name: Désactivation de selinux
+  ansible.posix.selinux:
+    state: disabled
+  notify: Reboot
+
+- name: Firewalld service http
+  ansible.posix.firewalld:
+    zone: public
+    service: http
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: "Firewalld port tcp {{ apache_port }}"
+  ansible.posix.firewalld:
+    zone: public
+    port: "{{ apache_port }}/tcp"
+    state: enabled
+    permanent: true
+    immediate: true

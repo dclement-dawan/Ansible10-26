@@ -29,14 +29,8 @@
   hosts: webservers
   become: true
   handlers:
-    - name: Restart Apache
-      ansible.builtin.systemd:
-        name: '{{ apache_service }}'
-        state: restarted
-      when: not ansible_check_mode
-
-    - name: Reboot
-      ansible.builtin.reboot:
+    - name: Importation handlers
+      ansible.builtin.import_tasks: tasks/apache_handlers.yml
   tasks:
     - name: Assertion distribution
       ansible.builtin.assert:
@@ -48,61 +42,33 @@
       ansible.builtin.fail:
         msg: Distribution non supportée
       when: >
-        ansible_distribution + ansible_distribution_major_version not in ('Debian11', 'Debian13', 'AlmaLinux9', 'AlmaLinux10')
+        ansible_distribution + ansible_distribution_major_version not in ('Debian12', 'Debian13', 'AlmaLinux9', 'AlmaLinux10')
 
-    - name: Mise à jour cache APT
-      ansible.builtin.apt:
-        update_cache: true
-        cache_valid_time: 7200
-      when: ansible_os_family == 'Debian'
+    - name: Variables communes
+      ansible.builtin.include_vars: apache_common.yml
 
-    - name: Configuration SeLinux et Firewalld
-      when: ansible_distribution == 'AlmaLinux'
-      block:
-        - name: Désactivation de selinux
-          ansible.posix.selinux:
-            state: disabled
-          notify: Reboot
+    - name: Vérification du port
+      ansible.builtin.assert:
+        that:
+          - (apache_port >= 1024) and (apache_port <= 65535)
+        fail_msg: Le port doit être compris entre 1024 et 65535
 
-        - name: Firewalld service http
-          ansible.posix.firewalld:
-            zone: public
-            service: http
-            state: enabled
-            permanent: true
-            immediate: true
+    - name: Variables de distribution
+      ansible.builtin.include_vars: "apache_{{ ansible_distribution }}.yml"
 
-        - name: Firewalld port 8080/tcp
-          ansible.posix.firewalld:
-            zone: public
-            port: 8080/tcp
-            state: enabled
-            permanent: true
-            immediate: true
+    - name: "Vérifier si le port est libre {{ apache_port }}"
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          ss -antp | grep ":{{ apache_port }}" | grep -v {{ apache_service }}
+        executable: /bin/bash
+      changed_when: false
+      check_mode: false
+      register: result
+      failed_when: result.rc == 0
 
-    - name: Installation du paquet
-      ansible.builtin.package:
-        name: '{{ apache_package }}'
-        state: present
+    - name: Tâches de distribution
+      ansible.builtin.include_tasks: "tasks/apache_{{ ansible_distribution }}.yml"
 
-    - name: Copie du fichier index
-      ansible.builtin.copy:
-        src: index.html
-        dest: /var/www/html
-        owner: "{{ apache_user }}"
-        group: "{{ apache_group }}"
-        mode: '0644'
-
-    - name: Service apache
-      ansible.builtin.systemd:
-        name: '{{ apache_service }}'
-        state: started
-        enabled: true
-      when: not ansible_check_mode
-
-    - name: Configuration du port
-      ansible.builtin.copy:
-        dest: "{{ apache_conf_aux }}/port.conf"
-        content: Listen 8080
-        mode: '0644'
-      notify: Restart Apache
+    - name: Tâches communes
+      ansible.builtin.import_tasks: tasks/apache_common.yml

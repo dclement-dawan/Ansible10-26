@@ -1,0 +1,8 @@
+- name: Restart Apache
+  ansible.builtin.systemd:
+    name: '{{ apache_service }}'
+    state: restarted
+  when: not ansible_check_mode
+
+- name: Reboot
+  ansible.builtin.reboot:

@@ -1,5 +1,5 @@
-apache_service: httpd
-apache_package: httpd
-apache_user: apache
-apache_group: apache
-apache_conf_aux: /etc/httpd/conf.d
+# apache_service: httpd
+# apache_package: httpd
+# apache_user: apache
+# apache_group: apache
+# apache_conf_aux: /etc/httpd/conf.d

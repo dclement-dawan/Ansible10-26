@@ -1,0 +1,4 @@
+- name: Mise à jour cache APT
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 7200

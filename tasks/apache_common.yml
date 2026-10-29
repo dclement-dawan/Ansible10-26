@@ -1,0 +1,27 @@
+- name: Installation du paquet
+  ansible.builtin.package:
+    name: '{{ apache_package }}'
+    state: present
+
+- name: Copie du fichier index
+  ansible.builtin.copy:
+    src: index.html
+    dest: /var/www/html
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+    mode: '0644'
+
+- name: Service apache
+  ansible.builtin.systemd:
+    name: '{{ apache_service }}'
+    state: started
+    enabled: true
+  when: not ansible_check_mode
+
+- name: Configuration du port
+  ansible.builtin.template:
+    dest: "{{ apache_conf_aux }}/port.conf"
+    src: port.conf.j2
+    mode: '0644'
+    backup: true
+  notify: Restart Apache
