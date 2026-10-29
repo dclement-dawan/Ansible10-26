@@ -31,3 +31,19 @@
       vars:
         test_param1: youpi
         test_param2: bref
+
+    - name: Appel d'un rôle de la galaxy mysql
+      ansible.builtin.include_role:
+        name: geerlingguy.mysql
+      vars:
+        mysql_root_password: P@ssw0rd!
+        mysql_databases:
+          - name: totodb
+          - name: tutudb
+        mysql_users:
+          - name: toto
+            password: S3cret!
+            priv: "totodb.*:USAGE"
+          - name: tutu
+            password: S3cret!
+            priv: "tutudb.*:ALL"
