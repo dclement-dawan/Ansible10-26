@@ -1,0 +1,29 @@
+---
+- name: TP Boucles
+  hosts: webservers
+  become: true
+  vars:
+    tabusers:
+      - name: toto
+        groups:
+          - adm
+          - compta
+        home: /home/toto
+        shell: /bin/bash
+      - name: tutu
+        groups:
+          - direction
+          - compta
+        home: /home/tutu
+        shell: /bin/sh
+      - name: titi
+        groups:
+          - tech
+        home: /dev/null
+        shell: /bin/nologin
+  tasks:
+    # S'assurer que les groupes existent
+
+
+
+    # Créer les comptes avec les propriétés souhaitées
