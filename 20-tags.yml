@@ -1,0 +1,54 @@
+- name: Utilisation des tags
+  hosts: node1
+  become: true
+  gather_facts: false
+  tags: main
+  vars:
+    fichiers:
+      - nom: test
+        ext: pdf
+        path: /home/dawan
+        contenu: 'bla bla bla'
+      - nom: test2
+        ext: pdf
+        path: /tmp
+        contenu: 'bla bla bla'
+      - nom: test
+        ext: html
+        path: /srv/dawan
+        contenu: 'bla bla bla'
+  tasks:
+    - name: Réinitialisation
+      ansible.builtin.debug:
+        msg: '...'
+      tags: never
+
+    - name: Initialisation obligatoire
+      ansible.builtin.debug:
+        msg: '...'
+      tags: always
+
+    - name: Fichier /tmp/test.txt
+      ansible.builtin.import_role:
+        name: fichier
+      vars:
+        fichier_nom: "test"
+      tags: fichier
+
+    - name: Petite tâche de transition
+      ansible.builtin.debug:
+        msg: '...'
+      tags: transition
+
+    - name: Création des fichiers
+      ansible.builtin.include_role:
+        name: fichier
+      vars:
+        fichier_nom: "{{ fichier.nom }}"
+        fichier_extension: "{{ fichier.ext }}"
+        fichier_path: "{{ fichier.path }}"
+        fichier_contenu: "{{ fichier.contenu }}"
+      loop: '{{ fichiers }}'
+      loop_control:
+        loop_var: fichier
+      tags: fichier_path, fichier_create
