@@ -15,3 +15,21 @@
 #   Q1 - fichier avec le paramètre fichier_nom
 #   Q2 - avec une boucle sur la variable fichiers
 - name: Utilisation de rôle personnalisé
+  hosts: node1
+  become: true
+  gather_facts: false
+  vars:
+    fichiers:
+      - nom: test
+        ext: pdf
+        path: /home/dawan
+        contenu: 'bla bla bla'
+      - nom: test2
+        ext: pdf
+        path: /tmp
+        contenu: 'bla bla bla'
+      - nom: test
+        ext: html
+        path: /srv/dawan
+        contenu: 'bla bla bla'
+  tasks:
