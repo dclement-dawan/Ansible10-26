@@ -1,0 +1,7 @@
+- name: Je ne sers à rien
+  ansible.builtin.debug:
+    msg: vraiment à rien
+
+- name: Ouf c'est fini
+  ansible.builtin.debug:
+    msg: ...

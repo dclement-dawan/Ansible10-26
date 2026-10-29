@@ -33,3 +33,27 @@
     - name: Affichage
       ansible.builtin.debug:
         msg: "{{ var1 }}   {{ var2 }} {{ common.var1 }} {{ dossier.var3 }} "
+
+    # Dynamique, évalué lors de l'exécution
+    - name: Inclusion de tâches
+      ansible.builtin.include_tasks: "tasks/taches.yml"
+
+    # Statique, évalué à l'analyse initiale du playbook
+    - name: Importation de tâches
+      ansible.builtin.import_tasks: tasks/taches.yml
+
+    # Inclusion avec fallback
+    - name: Inclusion de tâches
+      ansible.builtin.include_tasks: '{{ taskfile }}'
+      with_first_found:
+        - files:
+            - "tasks/{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml"
+            - "tasks/{{ ansible_distribution }}.yml"
+            - "tasks/{{ ansible_os_family }}.yml"
+            - "tasks/taches.yml"
+          ignore_missing: true
+      loop_control:
+        loop_var: taskfile
+
+- name: Playbook importé
+  ansible.builtin.import_playbook: 2-playbook.yml
