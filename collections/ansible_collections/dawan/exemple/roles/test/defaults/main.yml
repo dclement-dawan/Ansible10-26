@@ -1,0 +1,4 @@
+---
+# defaults file for roles/test
+test_param1: glop
+test_param2: pasglop

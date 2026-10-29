@@ -1,0 +1,27 @@
+- name: Assertion nom obligatoire
+  ansible.builtin.assert:
+    that:
+      - fichier_nom | trim != ''
+    fail_msg: Le nom du fichier est obligatoire
+  tags: fichier_path, fichier_create
+
+- name: Vérification de l'existence du dossier parent
+  ansible.builtin.stat:
+    path: '{{ fichier_path }}'
+  register: fichier_result
+  tags: fichier_path
+
+- name: Création du dossier parent
+  ansible.builtin.file:
+    path: '{{ fichier_path }}'
+    state: directory
+    mode: '0755'
+  when: not fichier_result.stat.exists
+  tags: fichier_path
+
+- name: Création du fichier
+  ansible.builtin.copy:
+    content: '{{ fichier_contenu }}'
+    dest: '{{ fichier_path }}/{{ fichier_nom }}.{{ fichier_extension }}'
+    mode: '0644'
+  tags: fichier_create
