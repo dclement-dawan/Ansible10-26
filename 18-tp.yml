@@ -1,0 +1,17 @@
+---
+# Créer un rôle :    fichier      ( ansible-galaxy role init roles/fichier )
+# Prenant en entrée:
+#   - fichier_nom : obligatoire avec un assert
+#   - fichier_extension : par défaut "txt"
+#   - fichier_path : par défaut /tmp
+#   - fichier_contenu : par défaut "contenu standard"
+# En sortie:
+#   - utiliser le module ansible.builtin.file pour créer le dossier
+# parent fichier_path s'il n'existe pas déjà (ansible.builtin.stat)
+#
+#   - et le module ansible.builtin.copy pour créer le fichier fichier_nom.fichier_extension contenant fichier_contenu
+
+# Appeler le rôle:
+#   Q1 - fichier avec le paramètre fichier_nom
+#   Q2 - avec une boucle sur la variable fichiers
+- name: Utilisation de rôle personnalisé

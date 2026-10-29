@@ -3,6 +3,9 @@
   hosts: webservers
   become: true
   tasks:
+    # role créé avec :
+    # ansible
+
     - name: Appel du rôle test include
       ansible.builtin.include_role:
         name: test
