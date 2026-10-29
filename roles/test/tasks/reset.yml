@@ -1,0 +1,9 @@
+---
+# tasks file for roles/test
+- name: Hello
+  ansible.builtin.debug:
+    msg: |
+      from role test
+      {{ test_var1 }}
+      {{ test_param1 }}
+      {{ test_param2 }}

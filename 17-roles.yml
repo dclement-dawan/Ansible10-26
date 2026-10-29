@@ -7,7 +7,24 @@
       ansible.builtin.include_role:
         name: test
 
-
     - name: Appel du rôle test import
       ansible.builtin.import_role:
         name: test
+
+    - name: Appel avec passage de paramètres
+      ansible.builtin.import_role:
+        name: test
+      vars:
+        test_param1: youpi
+        test_param2: bref
+
+    - name: Appel avec changement des points d'entrée
+      ansible.builtin.import_role:
+        name: test
+        tasks_from: reset.yml
+        handlers_from: main.yml
+        vars_from: main.yml
+        defaults_from: main.yml
+      vars:
+        test_param1: youpi
+        test_param2: bref
