@@ -1,0 +1,13 @@
+---
+- name: Appel des rôles
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Appel du rôle test include
+      ansible.builtin.include_role:
+        name: test
+
+
+    - name: Appel du rôle test import
+      ansible.builtin.import_role:
+        name: test
