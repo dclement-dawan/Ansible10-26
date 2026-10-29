@@ -23,7 +23,7 @@
         shell: /bin/nologin
   tasks:
     # S'assurer que les groupes existent
-
-
+    # soit utiliser le filtre subelement avec loop
+    # soit aplatir la liste avec le filtre map
 
     # Créer les comptes avec les propriétés souhaitées
