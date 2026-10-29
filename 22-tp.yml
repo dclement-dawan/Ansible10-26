@@ -1,0 +1,32 @@
+---
+# Créer la collection formation.php
+# ansible-galaxy collection init formation.php --init-path collections/ansible_collections/
+
+# Créer le rôle "install" dans le dossier de la collection
+# ansible-galaxy role init collections/ansible_collections/formation/php/roles/install
+
+# Rôle formation.php.install :
+# Installer le paquet : php (Alma) et php et libapache2-mod-php(Debian)
+# Notifier un handler "Restart apache"
+
+
+# Créer le rôle "config" dans le dossier de la collection
+# ansible-galaxy role init collections/ansible_collections/formation/php/roles/config
+
+# Rôle formation.php.config :
+
+# Paramètres d'entrée :
+# config_output_buffering: '4096'
+# config_display_errors: 'Off'
+# config_memory_limit: '128M'
+# config_upload_max_filesize: '2M'
+# config_max_execution_time: 60
+
+# Faire le template du fichier de conf php.ini.jinja
+# à envoyer dans /etc/php.ini (Alma) ou /etc/php/8.2/apache2/php.ini
+# Notifier un handler "Reload php"
+
+# Créer une page de test dans /var/www/html : test.php
+#       <?php phpinfo();  ?>
+
+# Dans le playbook : appeler les rôles formation.php.install et formation.php.config
