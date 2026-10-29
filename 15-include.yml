@@ -1,0 +1,35 @@
+---
+- name: Inclusion et importation
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Inclusion de variables (de type json ou yaml)
+      ansible.builtin.include_vars: common.yml
+
+    - name: Inclusion de variables conditionnelle
+      ansible.builtin.include_vars: Debian.yml
+      when: ansible_distribution == 'Debian'
+
+    - name: Inclusion de variables variable
+      ansible.builtin.include_vars: "{{ ansible_distribution }}.yml"
+
+    - name: Inclusion de variables variable
+      ansible.builtin.include_vars: "{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml"
+
+    - name: Inclusion de variables dans une variable
+      ansible.builtin.include_vars:
+        file: common.yml
+        name: common
+
+    - name: Inclusion de dossier
+      ansible.builtin.include_vars:
+        dir: vars
+        depth: 2
+        name: dossier
+        files_matching: "^t"
+        ignore_files:
+          - toto.yml
+
+    - name: Affichage
+      ansible.builtin.debug:
+        msg: "{{ var1 }}   {{ var2 }} {{ common.var1 }} {{ dossier.var3 }} "
