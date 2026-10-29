@@ -21,9 +21,48 @@
           - tech
         home: /dev/null
         shell: /bin/nologin
+
   tasks:
     # S'assurer que les groupes existent
-    # soit utiliser le filtre subelement avec loop
-    # soit aplatir la liste avec le filtre map
+    # V1
+    # soit utiliser le filtre "subelements('groups')" avec loop
+    #    item.0 ou item[0] -> parcours de la liste principale
+    # et item.1 ou item[1] -> parcous de la liste imbriquée
+    - name: Création des groupes v1
+      ansible.builtin.group:
+        name: '{{ group.1 }}'
+        state: present
+      loop: '{{ tabusers | subelements("groups") }}'
+      loop_control:
+        loop_var: group
+        label: "Groupe {{ group.1 }}"
+
+    # V2
+    # soit aplatir (filtre flatten) la liste avec le filtre map, et
+    # filtre unique
+    - name: Récupération des groupes
+      ansible.builtin.set_fact:
+        groupes: '{{ tabusers | map(attribute="groups") | flatten | unique }}'
+
+    - name: Création des groupes v2
+      ansible.builtin.group:
+        name: '{{ group }}'
+        state: present
+      loop: '{{ groupes }}'
+      loop_control:
+        loop_var: group
+        label: "Groupe {{ group }}"
 
     # Créer les comptes avec les propriétés souhaitées
+    - name: Création utilisateurs
+      ansible.builtin.user:
+        name: '{{ user.name }}'
+        home: '{{ user.home }}'
+        shell: '{{ user.shell }}'
+        groups: '{{ user.groups }}'
+        append: true
+        state: present
+      loop: '{{ tabusers }}'
+      loop_control:
+        loop_var: user
+        label: "Création de l'utilisateur {{ user.name }}"
