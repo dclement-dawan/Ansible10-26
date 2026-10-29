@@ -33,3 +33,20 @@
         path: /srv/dawan
         contenu: 'bla bla bla'
   tasks:
+    - name: Fichier /tmp/test.txt
+      ansible.builtin.import_role:
+        name: fichier
+      vars:
+        fichier_nom: "test"
+
+    - name: Création des fichiers
+      ansible.builtin.include_role:
+        name: fichier
+      vars:
+        fichier_nom: "{{ fichier.nom }}"
+        fichier_extension: "{{ fichier.ext }}"
+        fichier_path: "{{ fichier.path }}"
+        fichier_contenu: "{{ fichier.contenu }}"
+      loop: '{{ fichiers }}'
+      loop_control:
+        loop_var: fichier
