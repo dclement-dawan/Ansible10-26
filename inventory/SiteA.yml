@@ -1,0 +1,10 @@
+# groupe
+siteA:
+  hosts:
+    node1:
+      # variable d'hôte
+      ansible_host: 192.168.75.177
+    node2:
+      ansible_host: 192.168.75.164
+  vars:
+    bg: blue

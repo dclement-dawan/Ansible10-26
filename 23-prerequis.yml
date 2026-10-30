@@ -19,7 +19,7 @@
 - name: Tâches sur les nodes et Pré-requis contrôleur
   hosts: webservers
   tasks:
-    - name: Téléchargement des pré-requis sur le contrôleur # noqa: run-once[task]
+    - name: Téléchargement des pré-requis sur le contrôleur
       community.general.ansible_galaxy_install:
         requirements_file: requirements.yml
         type: both
