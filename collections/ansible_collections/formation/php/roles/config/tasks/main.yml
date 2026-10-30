@@ -8,19 +8,20 @@
   ansible.builtin.set_fact:
     config_path: /etc/php.ini
     config_service: php-fpm
-  when: ansible_ditribution == 'AlmaLinux'
+  when: ansible_distribution == 'AlmaLinux'
 
 - name: Variable Debian
   ansible.builtin.set_fact:
     config_path: /etc/php/8.2/apache2/php.ini
     config_service: apache2
-  when: ansible_ditribution == 'Debian'
+  when: ansible_distribution == 'Debian'
 
 - name: Template de la conf
   ansible.builtin.template:
     src: php.ini.jinja
     dest: '{{ config_path }}'
     mode: '0644'
+    backup: true
   notify: Restart service
 
 - name: Phpinfo
@@ -28,3 +29,7 @@
     src: test.php
     dest: /var/www/html
     mode: '0644'
+
+# Exécution avant de revenir au playbook
+- name: Exécution des handlers
+  ansible.builtin.meta: flush_handlers

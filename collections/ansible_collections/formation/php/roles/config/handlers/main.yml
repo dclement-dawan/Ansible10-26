@@ -2,3 +2,5 @@
   ansible.builtin.systemd:
     name: '{{ config_service }}'
     state: restarted
+    enabled: true
+  when: not ansible_check_mode

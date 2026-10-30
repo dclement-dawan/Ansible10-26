@@ -35,11 +35,11 @@
   become: true
   tasks:
     - name: Installation
-      ansible.builtin.include_role:
+      ansible.builtin.import_role:
         name: formation.php.install
 
     - name: Configuration
-      ansible.builtin.include_role:
+      ansible.builtin.import_role:
         name: formation.php.config
       vars:
         config_output_buffering: 'Off'

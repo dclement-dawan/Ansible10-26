@@ -18,3 +18,7 @@
     name: '{{ install_package }}'
     state: present
   notify: Restart Apache
+
+# Exécution avant de revenir au playbook
+- name: Exécution des handlers
+  ansible.builtin.meta: flush_handlers
