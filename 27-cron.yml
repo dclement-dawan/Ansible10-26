@@ -1,0 +1,24 @@
+---
+- name: Planification pull
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Adresse du controller
+      ansible.builtin.command: hostname -I
+      changed_when: false
+      register: controller
+      delegate_to: localhost
+      become: false
+
+    - name: IP du controller
+      ansible.builtin.set_fact:
+        controller_ip: '{{ controller.stdout | trim }}'
+
+    - name: Cron
+      ansible.builtin.cron:
+        name: ansible pull
+        minute: "*/90"
+        job: "ansible-pull -U dawan@{{ controller_ip }}:/home/dawan/pull.git --purge playbook.yml"
+        user: root
+        cron_file: ansible-pull
+        state: present
