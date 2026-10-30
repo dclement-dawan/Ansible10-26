@@ -1,0 +1,15 @@
+---
+- name: Pré-requis contrôleur
+  hosts: localhost
+  tasks:
+    - name: Téléchargement des pré-requis
+      community.general.ansible_galaxy_install:
+        requirements_file: requirements.yml
+        type: both
+
+- name: Tâches sur les nodes
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Ras
+      ansible.builtin.meta: noop

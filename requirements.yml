@@ -1,0 +1,29 @@
+---
+# utilisation manuelle:
+#  ansible-galaxy role install -r requirements.yml
+#  ansible-galaxy collection install -r requirements.yml
+
+# ou dans les playbooks : utiliser le module ansible_galaxy_install
+
+roles:
+  # Par défaut sur galaxy (GALAXY_SERVER)
+  - name: geerlingguy.mysql
+
+  - name: geerlingguy.mysql
+    version: 5.1.0
+
+  # Sur un serveur Git :
+  - name: nginx_role
+    version: master
+    src: https://github.com/bennojoy/nginx
+
+collections:
+  - name: geerlingguy.php_roles
+
+  - name: pishro_cloud.postgres
+    version: 1.0.0
+
+  - name: pishro_cloud.postgres
+    version: 1.0.0
+    source: https://galaxy.ansible.com
+    # source: https://gitlab.dawan.fr/dclement/collection
