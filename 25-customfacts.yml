@@ -1,0 +1,74 @@
+---
+- name: Custom facts
+  # les faits de classification sont portés par les nodes
+  # stockés dans /etc/ansible/facts.d/*.fact (json ou exécutables)
+  # emplacement configurable avec le module ansible.builtin.setup
+  hosts: webservers
+  become: true
+  vars:
+    factpath: /etc/ansible/facts.d
+  tasks:
+    - name: Dossier facts.d
+      ansible.builtin.file:
+        path: '{{ factpath }}'
+        state: directory
+
+    - name: Node1
+      ansible.builtin.copy:
+        dest: '{{ factpath }}/categorie.fact'
+        content: |
+          {"client": "dawan",
+           "ville": "paris",
+           "appli": "compta"}
+        mode: '0644'
+      when: inventory_hostname == 'node1'
+
+    - name: Node2
+      ansible.builtin.copy:
+        dest: '{{ factpath }}/categorie.fact'
+        content: |
+          {"client": "contoso",
+           "ville": "nantes",
+           "appli": "rh"}
+        mode: '0644'
+      when: inventory_hostname == 'node2'
+
+    - name: Node3
+      ansible.builtin.copy:
+        dest: '{{ factpath }}/categorie.fact'
+        content: |
+          {"client": "jehann",
+           "ville": "paris",
+           "appli": "erp"}
+        mode: '0644'
+      when: inventory_hostname == 'node3'
+
+    - name: Faits exécutables
+      ansible.builtin.copy:
+        dest: '{{ factpath }}/exe.fact'
+        mode: '0755'
+        content: |
+          #!/bin/bash
+          echo "{\"uptime\": \"$(uptime)\"}"
+
+    - name: Effacement des faits
+      ansible.builtin.meta: clear_facts
+
+    - name: Faits
+      ansible.builtin.setup:
+
+    - name: Faits exe
+      ansible.builtin.debug:
+        msg: '{{ ansible_local.exe.uptime }}'
+
+    - name: Regroupement dynamique
+      ansible.builtin.group_by:
+        key: '{{ ansible_local.categorie.appli }}'
+        parents:
+          - '{{ ansible_local.categorie.client }}'
+          - '{{ ansible_local.categorie.ville }}'
+
+    - name: Nouveaux Groupes # noqa:[task]
+      ansible.builtin.debug:
+        msg: '{{ groups }}'
+      run_once: true
