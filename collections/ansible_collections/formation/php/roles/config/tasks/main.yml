@@ -1,0 +1,30 @@
+- name: Assertion
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution in ('Debian', 'AlmaLinux')
+    fail_msg: Distribution non supportée
+
+- name: Variable Alma
+  ansible.builtin.set_fact:
+    config_path: /etc/php.ini
+    config_service: php-fpm
+  when: ansible_ditribution == 'AlmaLinux'
+
+- name: Variable Debian
+  ansible.builtin.set_fact:
+    config_path: /etc/php/8.2/apache2/php.ini
+    config_service: apache2
+  when: ansible_ditribution == 'Debian'
+
+- name: Template de la conf
+  ansible.builtin.template:
+    src: php.ini.jinja
+    dest: '{{ config_path }}'
+    mode: '0644'
+  notify: Restart service
+
+- name: Phpinfo
+  ansible.builtin.copy:
+    src: test.php
+    dest: /var/www/html
+    mode: '0644'

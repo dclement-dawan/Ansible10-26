@@ -30,3 +30,20 @@
 #       <?php phpinfo();  ?>
 
 # Dans le playbook : appeler les rôles formation.php.install et formation.php.config
+- name: PHP
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Installation
+      ansible.builtin.include_role:
+        name: formation.php.install
+
+    - name: Configuration
+      ansible.builtin.include_role:
+        name: formation.php.config
+      vars:
+        config_output_buffering: 'Off'
+        config_display_errors: 'On'
+        config_memory_limit: '512M'
+        config_upload_max_filesize: '200M'
+        config_max_execution_time: 600
