@@ -1,0 +1,13 @@
+---
+plugin: community.general.nmap
+
+address: 192.168.75.0/24
+port: 22, 80
+groups:
+  siteD: true
+  web: ports | selectattr('port','eq','80') | selectattr('state','eq','open') | list | length > 0
+
+cache: true
+cache_plugin: ansible.builtin.jsonfile
+cache_timeout: 86400
+cache_connection: /tmp/ansible/inventory

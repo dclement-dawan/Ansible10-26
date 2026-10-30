@@ -1,0 +1,72 @@
+---
+- name: Création d'un hôte
+  hosts: localhost
+  tasks:
+    - name: Inventaire actuel
+      ansible.builtin.debug:
+        msg: '{{ groups }}'
+
+    - name: Provisionnement ...
+      ansible.builtin.set_fact:
+        provisioned_ip: 192.168.75.177
+        provisioned_name: node11
+
+    - name: Ajout d'un nouvel hôte dans l'inventaire
+      ansible.builtin.add_host:
+        name: '{{ provisioned_name }}'
+        ansible_ssh_host: '{{ provisioned_ip }}'
+        ansible_ssh_port: 22
+        ansible_ssh_user: dawan
+        groups:
+          - provisioned_host
+
+    - name: Récup de l'empreinte ssh controller
+      ansible.builtin.command: 'ssh-keyscan {{ provisioned_ip }}'
+      register: thumbprint
+      changed_when: false
+
+    - name: Ajout dans le fichier known_hosts
+      ansible.builtin.lineinfile:
+        path: ~/.ssh/known_hosts
+        line: '{{ thumbprint.stdout }}'
+        mode: '0644'
+        state: present
+        create: true
+
+    - name: Inventaire modifié
+      ansible.builtin.debug:
+        msg: '{{ groups }}'
+
+- name: Bootstrap de la nouvelle machine
+  hosts: provisioned_host
+  tasks:
+    - name: Log
+      community.general.syslogger:
+        facility: local0
+        priority: info
+        msg: 'Hello world!'
+
+    - name: Regroupement dynamique
+      ansible.builtin.group_by:
+        key: '{{ ansible_distribution + ansible_distribution_major_version }}'
+        parents:
+          - '{{ ansible_distribution }}'
+          - '{{ ansible_os_family }}'
+
+- name: Bootstrap de la nouvelle machine
+  hosts: Debian
+  tasks:
+    - name: Log
+      community.general.syslogger:
+        facility: local0
+        priority: info
+        msg: Groupe Debian
+
+- name: Bootstrap de la nouvelle machine
+  hosts: AlmaLinux
+  tasks:
+    - name: Log
+      community.general.syslogger:
+        facility: local0
+        priority: info
+        msg: Groupe Alma
