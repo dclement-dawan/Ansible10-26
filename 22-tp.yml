@@ -33,10 +33,12 @@
 - name: PHP
   hosts: webservers
   become: true
+  tags: php
   tasks:
     - name: Installation
       ansible.builtin.import_role:
         name: formation.php.install
+      tags: install
 
     - name: Configuration
       ansible.builtin.import_role:
@@ -47,3 +49,4 @@
         config_memory_limit: '512M'
         config_upload_max_filesize: '200M'
         config_max_execution_time: 600
+      tags: config
