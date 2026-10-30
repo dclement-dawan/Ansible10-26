@@ -12,6 +12,7 @@
       ansible.builtin.file:
         path: '{{ factpath }}'
         state: directory
+        mode: '0755'
 
     - name: Node1
       ansible.builtin.copy:
@@ -68,7 +69,7 @@
           - '{{ ansible_local.categorie.client }}'
           - '{{ ansible_local.categorie.ville }}'
 
-    - name: Nouveaux Groupes # noqa:[task]
+    - name: Nouveaux Groupes  # noqa: run-once[task]
       ansible.builtin.debug:
         msg: '{{ groups }}'
       run_once: true

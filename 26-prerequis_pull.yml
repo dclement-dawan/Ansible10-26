@@ -1,0 +1,123 @@
+---
+- name: Controller
+  hosts: localhost
+  connection: local
+  become: true
+  tags: controller
+  vars:
+    owner: David
+    mail: dclement@dawan.fr
+    ansible_become_pass: dawan
+    git_path: /home/dawan/pull.git
+    project_path: /home/dawan/playbooks/
+  tasks:
+    - name: Installation git
+      ansible.builtin.apt:
+        name: git
+        state: present
+
+    - name: Création du dépôt
+      ansible.builtin.file:
+        path: "{{ git_path }}"
+        state: directory
+        mode: '0755'
+        owner: dawan
+        group: dawan
+
+    - name: Initialisation dépôt vide
+      ansible.builtin.shell: |
+        cd {{ git_path }}
+        git --bare init
+        git config --global init.defautBranch master
+      become: false
+      changed_when: false
+
+    - name: Cloner et configurer le dépôt
+      ansible.builtin.shell: |
+        cd {{ project_path }}
+        git clone {{ git_path }}
+        git config --global user.name "{{ owner }}"
+        git config --global user.email "{{ mail }}"
+      become: false
+      changed_when: false
+
+- name: Nodes
+  hosts: webservers
+  become: true
+  tags: nodes
+  vars:
+    packages:
+      Debian:
+        - git
+        - ansible
+      AlmaLinux:
+        - git
+        - ansible-core
+  tasks:
+    - name: Adresse du controller
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          hostname -I | cut -d ' ' -f 1
+        executable: /bin/bash
+      changed_when: false
+      register: controller
+      delegate_to: localhost
+      check_mode: false
+      become: false
+
+    - name: IP du controller
+      ansible.builtin.set_fact:
+        controller_ip: '{{ controller.stdout }}'
+
+    - name: Renommage des nodes
+      ansible.builtin.hostname:
+        name: '{{ inventory_hostname }}'
+
+    - name: Installation git et ansible
+      ansible.builtin.package:
+        name: '{{ packages[ansible_distribution] }}'
+        state: present
+
+    - name: Dossier .ssh
+      ansible.builtin.file:
+        path: /root/.ssh
+        mode: '0700'
+        owner: root
+        group: root
+
+    - name: Création clé ssh pour accès node -> controller
+      community.crypto.openssh_keypair:
+        path: /root/.ssh/id_rsa
+        type: rsa
+        size: 2048
+        comment: 'root@{{ inventory_hostname }}'
+
+    - name: Récup de l'empreinte ssh controller
+      ansible.builtin.command: 'ssh-keyscan {{ controller_ip }}'
+      register: thumbprint
+      changed_when: false
+
+    - name: Ajout dans le fichier known_hosts
+      ansible.builtin.lineinfile:
+        path: /root/.ssh/known_hosts
+        line: '{{ thumbprint.stdout }}'
+        mode: '0644'
+        state: present
+        create: true
+
+    - name: Récupération de la clé publique
+      ansible.builtin.command: 'cat /root/.ssh/id_rsa.pub'
+      register: key
+      changed_when: false
+
+    - name: Copie de la clé du node sur controller
+      ansible.posix.authorized_key:
+        key: '{{ key.stdout }}'
+        user: dawan
+        state: present
+      delegate_to: localhost
+      # nombre de noeuds en parallèle pour cette tâche
+      # Avec la valeur 1: retour en mode séquentiel
+      throttle: 1
+      become: false
